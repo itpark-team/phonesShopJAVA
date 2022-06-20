@@ -97,6 +97,66 @@ public class Main {
         return tempPhones;
     }
 
+    static Phone[] deletePhoneById(Phone[] phones, int id) {
+        int foundPhoneIndex = getIndexPhoneById(phones, id);
+
+        if (foundPhoneIndex == -1) {
+            System.out.println("Ошибка. Телефон с таким ID не найден. Удаление не возможно");
+            return phones;
+        }
+
+        Phone[] tempPhones = new Phone[phones.length - 1];
+        int tempPhonesIndex = 0;
+
+        for (int i = 0; i < phones.length; i++) {
+            if (i != foundPhoneIndex) {
+                tempPhones[tempPhonesIndex] = phones[i];
+                tempPhonesIndex++;
+            }
+        }
+
+        return tempPhones;
+    }
+
+    static Phone getPhoneById(Phone[] phones, int id) {
+        for (int i = 0; i < phones.length; i++) {
+            if (phones[i].id == id) {
+                return phones[i];
+            }
+        }
+        return null;
+    }
+
+    static int getIndexPhoneById(Phone[] phones, int id) {
+        for (int i = 0; i < phones.length; i++) {
+            if (phones[i].id == id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    static Phone[] sellPhone(Phone[] phones, int sellIdPhone) {
+        Phone foundPhone = getPhoneById(phones, sellIdPhone);
+
+        if (foundPhone == null) {
+            System.out.println("Ошибка. Телефон с таким ID не найден. Продажа не возможна");
+            return phones;
+        }
+
+        int sellAmount = inputInt("Введите кол-во телефонов для покупки: ", 1, foundPhone.amount);
+
+        foundPhone.amount -= sellAmount;
+
+        if (foundPhone.amount == 0) {
+            phones = deletePhoneById(phones, foundPhone.id);
+        }
+
+        System.out.println("Покупка успешно осуществлена!");
+
+        return phones;
+    }
+
     static void printlnTableHeader() {
         System.out.println(String.format("%-3s%-12s%-8s%-18s", "ИД", "Модель", "Цена", "Остаток на складе"));
     }
@@ -127,6 +187,7 @@ public class Main {
         System.out.println("2. Сохранить телефоны в текстовый файл");
         System.out.println("3. Загрузить телефоны из текстового файла");
         System.out.println("4. Осуществить продажу телефона");
+        System.out.println("5. Удалить телефон из списка");
         System.out.println("0. Выйти из программы");
     }
 
@@ -190,7 +251,7 @@ public class Main {
             printlnPhones(phones);
             printlnSeparator();
             printlnMenu();
-            int menuPoint = inputInt("Введите номер нужного пункта меню: ", 0, 3);
+            int menuPoint = inputInt("Введите номер нужного пункта меню: ", 0, 5);
 
             switch (menuPoint) {
                 case 1: {
@@ -210,6 +271,18 @@ public class Main {
                     String filename = inputString("Введите имя файла: ");
 
                     phones = loadPhonesFromTxtFile(filename);
+                }
+                break;
+
+                case 4: {
+                    int sellIdPhone = inputInt("Введите ID телефона для покупки: ", 1, lastPhoneId);
+                    phones = sellPhone(phones, sellIdPhone);
+                }
+                break;
+
+                case 5: {
+                    int deleteIdPhone = inputInt("Введите ID телефона для удаления : ", 1, lastPhoneId);
+                    phones = deletePhoneById(phones, deleteIdPhone);
                 }
                 break;
 
