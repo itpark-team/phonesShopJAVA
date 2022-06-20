@@ -5,6 +5,52 @@ import java.util.Scanner;
 
 public class Main {
 
+    static String inputString(String message) {
+        boolean isValidInput;
+        String output = "";
+        do {
+            try {
+                isValidInput = true;
+                Scanner scanner = new Scanner(System.in);
+
+                System.out.print(message);
+                output = scanner.nextLine();
+            } catch (Exception e) {
+                isValidInput = false;
+                System.out.println("Ошибка ввода. Пожалуйста повторите ввод");
+            }
+
+        } while (isValidInput == false);
+
+        return output;
+    }
+
+    static int inputInt(String message, int min, int max) {
+        boolean isValidInput;
+        int output = 0;
+        do {
+            try {
+                isValidInput = true;
+                Scanner scanner = new Scanner(System.in);
+
+                System.out.print(message);
+                output = scanner.nextInt();
+
+                if (output < min || output > max) {
+                    System.out.println("Ошибка ввода. Вы вышли за границы диапазона от " + min + " до " + max);
+                    throw new Exception();
+                }
+
+            } catch (Exception e) {
+                isValidInput = false;
+                System.out.println("Ошибка ввода. Пожалуйста повторите ввод");
+            }
+
+        } while (isValidInput == false);
+
+        return output;
+    }
+
     static int lastPhoneId = 0;
 
     static class Phone {
@@ -22,18 +68,15 @@ public class Main {
     }
 
     static Phone createPhone() {
-        Scanner scanner = new Scanner(System.in);
-
         lastPhoneId++;
 
-        System.out.print("Введите модель телефона: ");
-        String model = scanner.nextLine();
+        String model = inputString("Введите модель телефона: ");
 
         System.out.print("Введите цену телефона: ");
-        int price = scanner.nextInt();
+        int price = inputInt("Введите цену телефона: ", 1, 1000000);
 
         System.out.print("Введите количество телефонов на складе: ");
-        int amount = scanner.nextInt();
+        int amount = inputInt("Введите количество телефонов на складе: ", 1, 10000);
 
         return new Phone(lastPhoneId, model, price, amount);
     }
@@ -83,13 +126,8 @@ public class Main {
         System.out.println("1. Добавить новый телефон");
         System.out.println("2. Сохранить телефоны в текстовый файл");
         System.out.println("3. Загрузить телефоны из текстового файла");
+        System.out.println("4. Осуществить продажу телефона");
         System.out.println("0. Выйти из программы");
-    }
-
-    static int getChosenMenuPoint() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Введите номер нужного пункта меню: ");
-        return scanner.nextInt();
     }
 
     static void savePhonesToTxtFile(String filename, Phone[] phones) throws IOException {
@@ -152,7 +190,7 @@ public class Main {
             printlnPhones(phones);
             printlnSeparator();
             printlnMenu();
-            int menuPoint = getChosenMenuPoint();
+            int menuPoint = inputInt("Введите номер нужного пункта меню: ", 0, 3);
 
             switch (menuPoint) {
                 case 1: {
@@ -162,20 +200,14 @@ public class Main {
                 break;
 
                 case 2: {
-                    Scanner scanner = new Scanner(System.in);
-
-                    System.out.print("Введите имя файла: ");
-                    String filename = scanner.nextLine();
+                    String filename = inputString("Введите имя файла: ");
 
                     savePhonesToTxtFile(filename, phones);
                 }
                 break;
 
                 case 3: {
-                    Scanner scanner = new Scanner(System.in);
-
-                    System.out.print("Введите имя файла: ");
-                    String filename = scanner.nextLine();
+                    String filename = inputString("Введите имя файла: ");
 
                     phones = loadPhonesFromTxtFile(filename);
                 }
