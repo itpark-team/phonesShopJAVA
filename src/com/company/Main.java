@@ -3,9 +3,8 @@ package com.company;
 import java.io.*;
 import java.util.Scanner;
 
-//its main class
 public class Main {
-//region utils methods
+    //region utils methods
     static String inputString(String message) {
         boolean isValidInput;
         String output = "";
@@ -53,7 +52,12 @@ public class Main {
     }
 //endregion
 
-//region global variables
+    //region global variables
+    enum SortDirection {
+        ASC,
+        DESC
+    }
+
     static int lastPhoneId = 0;
 
     static class Phone {
@@ -71,7 +75,7 @@ public class Main {
     }
 //endregion
 
-//region support phones methods
+    //region support phones methods
     static Phone getPhoneById(Phone[] phones, int id) {
         for (int i = 0; i < phones.length; i++) {
             if (phones[i].id == id) {
@@ -91,14 +95,12 @@ public class Main {
     }
 //endregion
 
-//region main phones methods
+    //region main phones methods
     static Phone createPhone() {
         String model = inputString("Введите модель телефона: ");
 
-        System.out.print("Введите цену телефона: ");
         int price = inputInt("Введите цену телефона: ", 1, 1000000);
 
-        System.out.print("Введите количество телефонов на складе: ");
         int amount = inputInt("Введите количество телефонов на складе: ", 1, 10000);
 
         return new Phone(0, model, price, amount);
@@ -109,8 +111,7 @@ public class Main {
     }
 
     static Phone[] addPhoneToEndOfArray(Phone[] phones, Phone insertedPhone) {
-        lastPhoneId++;
-        insertedPhone.id = lastPhoneId;
+
 
         Phone[] tempPhones = new Phone[phones.length + 1];
 
@@ -120,7 +121,6 @@ public class Main {
 
         tempPhones[tempPhones.length - 1] = insertedPhone;
 
-        System.out.println("Телефон добавлен успешно!");
 
         return tempPhones;
     }
@@ -185,6 +185,39 @@ public class Main {
         System.out.println("Покупка осуществлена успешно!");
 
         return phones;
+    }
+
+    static Phone[] findPhonesByPrice(Phone[] phones, int minPrice, int maxPrice) {
+        Phone[] foundPhones = createEmptyPhonesArray();
+
+        for (int i = 0; i < phones.length; i++) {
+            if (phones[i].price >= minPrice && phones[i].price <= maxPrice) {
+                foundPhones = addPhoneToEndOfArray(foundPhones, phones[i]);
+            }
+        }
+
+        return foundPhones;
+    }
+
+    static void sortPhonesByAmount(Phone[] phones, SortDirection sortDirection) {
+        for (int i = 0; i < phones.length - 1; i++) {
+            int index = i;
+            for (int j = i + 1; j < phones.length; j++) {
+
+                if (sortDirection == SortDirection.ASC) {
+                    if (phones[j].amount < phones[index].amount) {
+                        index = j;
+                    }
+                } else if (sortDirection == SortDirection.DESC) {
+                    if (phones[j].amount > phones[index].amount) {
+                        index = j;
+                    }
+                }
+            }
+            Phone temp = phones[index];
+            phones[index] = phones[i];
+            phones[i] = temp;
+        }
     }
 
     static void savePhonesToTxtFile(String filename, Phone[] phones) throws IOException {
@@ -268,7 +301,7 @@ public class Main {
     }
 //endregion
 
-//region ui methods
+    //region ui methods
     static void printlnTableHeader() {
         System.out.println(String.format("%-3s%-12s%-8s%-18s", "ИД", "Модель", "Цена", "Остаток на складе"));
     }
@@ -302,6 +335,8 @@ public class Main {
         System.out.println("5. Удалить телефон из списка");
         System.out.println("6. Распечатать список телефонов в файл");
         System.out.println("7. Обновить данные о телефоне");
+        System.out.println("8. Найти телефоны в заданном ценовом диапазоне");
+        System.out.println("9. Отсортировать телефоны по остатку на складе");
         System.out.println("0. Выйти из программы");
     }
 //endregion
@@ -314,12 +349,18 @@ public class Main {
             printlnPhones(phones);
             printlnSeparator();
             printlnMenu();
-            int menuPoint = inputInt("Введите номер нужного пункта меню: ", 0, 7);
+            int menuPoint = inputInt("Введите номер нужного пункта меню: ", 0, 9);
 
             switch (menuPoint) {
                 case 1: {
-                    Phone insertPhone = createPhone();
-                    phones = addPhoneToEndOfArray(phones, insertPhone);
+                    Phone insertedPhone = createPhone();
+
+                    lastPhoneId++;
+                    insertedPhone.id = lastPhoneId;
+
+                    phones = addPhoneToEndOfArray(phones, insertedPhone);
+
+                    System.out.println("Телефон добавлен успешно!");
                 }
                 break;
 
@@ -338,14 +379,14 @@ public class Main {
                 break;
 
                 case 4: {
-                    int sellIdPhone = inputInt("Введите ID телефона для покупки: ", 1, lastPhoneId);
-                    phones = sellPhone(phones, sellIdPhone);
+                    int soldIdPhone = inputInt("Введите ID телефона для покупки: ", 1, lastPhoneId);
+                    phones = sellPhone(phones, soldIdPhone);
                 }
                 break;
 
                 case 5: {
-                    int deleteIdPhone = inputInt("Введите ID телефона для удаления : ", 1, lastPhoneId);
-                    phones = deletePhoneById(phones, deleteIdPhone);
+                    int deletedIdPhone = inputInt("Введите ID телефона для удаления : ", 1, lastPhoneId);
+                    phones = deletePhoneById(phones, deletedIdPhone);
                 }
                 break;
 
@@ -357,10 +398,25 @@ public class Main {
                 break;
 
                 case 7: {
-                    int updateIdPhone = inputInt("Введите ID телефона для обновления : ", 1, lastPhoneId);
+                    int updatedIdPhone = inputInt("Введите ID телефона для обновления : ", 1, lastPhoneId);
+                    updatePhoneById(phones, updatedIdPhone);
+                }
+                break;
 
+                case 8: {
+                    int minPrice = inputInt("Введите минимальную цену телефона: ", 1, 1000000);
+                    int maxPrice = inputInt("Введите максимальную цену телефона: ", 1, 1000000);
+                    Phone[] foundPhones = findPhonesByPrice(phones, minPrice, maxPrice);
 
-                    updatePhoneById(phones, updateIdPhone);
+                    printlnTableHeader();
+                    printlnPhones(foundPhones);
+                }
+                break;
+
+                case 9: {
+                    int sortDirection = inputInt("Введите направление сортировки(0 - по возрастанию, 1 - по убыванию): ", 0, 1);
+
+                    sortPhonesByAmount(phones, SortDirection.values()[sortDirection]);
                 }
                 break;
 

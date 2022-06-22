@@ -1,4 +1,4 @@
-2
+4
 1
 iphone xs
 124000
@@ -7,4 +7,12 @@ iphone xs
 samsung a5
 78000
 18
-2
+3
+nokia3310
+50000
+15
+4
+xiaomi
+2000
+141
+4
