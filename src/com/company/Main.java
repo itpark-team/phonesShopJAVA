@@ -3,6 +3,7 @@ package com.company;
 import java.io.*;
 import java.util.Scanner;
 
+//its main class
 public class Main {
 //region utils methods
     static String inputString(String message) {
